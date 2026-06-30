@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currency-service
+  namespace: wijha
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: currency-service
+  template:
+    metadata:
+      labels:
+        app: currency-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: currency-service
+              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        role: app
+      containers:
+      - name: currency-service
+        image: amirazzamm/wijha-currency:v1.0.0
+        ports:
+        - containerPort: 8084
+        env:
+        - { name: SERVICE_NAME, value: "currency-service" }
+        - { name: PORT,         value: "8084" }
+        livenessProbe:
+          httpGet: { path: /health, port: 8084 }
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet: { path: /health, port: 8084 }
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        resources:
+          requests: { memory: "64Mi",  cpu: "50m" }
+          limits:   { memory: "128Mi", cpu: "250m" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: currency-service
+  namespace: wijha
+spec:
+  type: ClusterIP
+  selector:
+    app: currency-service
+  ports:
+  - port: 8084
+    targetPort: 8084
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: currency-service
+  namespace: wijha
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: currency-service
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

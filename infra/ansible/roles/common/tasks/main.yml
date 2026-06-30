@@ -1,0 +1,25 @@
+- name: wait for apt lock release
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  register: apt_update
+  retries: 5
+  delay: 10
+  until: apt_update is succeeded
+
+- name: install base packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - apt-transport-https
+      - ca-certificates
+    state: present
+
+# disbale memo swap
+- name: disable swap 
+  ansible.builtin.command: swapoff -a
+  changed_when: false
+
+# - name: set timezone UTC
+#   ansible.builtin.timezone:
+#     name: UTC

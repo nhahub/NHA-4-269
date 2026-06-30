@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wijha
+  namespace: argocd
+spec:
+  project: defult
+  source:
+    repourl: https://github.com/nhahub/NHA-4-269.git
+    targetRevision: main
+    path: Kubernetes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: wijha
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

@@ -1,0 +1,22 @@
+.claude/
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+override.tf
+.terraformrc
+
+# Ansible
+*.retry
+infra/ansible/inventory/hosts.ini
+
+# Old handoff artifacts
+*-handoff.zip

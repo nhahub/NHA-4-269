@@ -1,0 +1,71 @@
+/* Wijha — "Glacia" snow/ice design system. Cool blues, glass panels,
+   Poppins (display) + Inter (body). Inline styles carry the static visuals;
+   this file carries fonts, hover, focus, keyframes, glass and responsive. */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #1E2D4D;
+  background: linear-gradient(180deg, #EAF1FA 0%, #DCE7F4 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+input, select, textarea, button { font-family: inherit; }
+::selection { background: #BBD4F2; color: #16243F; }
+a { text-decoration: none; color: inherit; }
+
+/* scroll reveal */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+.reveal.in { opacity: 1; transform: none; }
+
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes dash { to { stroke-dashoffset: -24; } }
+@keyframes drift { 0% { transform: translateY(-8px); opacity: 0; } 12% { opacity: .9; } 100% { transform: translateY(120px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal.in { opacity: 1 !important; transform: none !important; transition: none !important; }
+  * { animation: none !important; }
+}
+
+/* frosted glass panel */
+.wl-glass { background: rgba(255,255,255,.55); backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%); border: 1px solid rgba(255,255,255,.7); }
+
+/* interactive helpers */
+.wl-link { transition: color .2s ease; }
+.wl-link:hover { color: #1E54C4 !important; }
+.wl-card { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease; }
+.wl-card:hover { transform: translateY(-6px); box-shadow: 0 22px 50px -22px rgba(30,45,77,.4) !important; }
+.wl-btn { transition: transform .2s ease, box-shadow .25s ease, background .25s ease; }
+.wl-btn:hover { transform: translateY(-2px); }
+.wl-btn:active { transform: translateY(0); }
+.wl-btn:disabled { cursor: not-allowed; transform: none; }
+.wl-row:hover { background: #F2F7FD !important; }
+.wl-tab { transition: color .2s ease, border-color .2s ease; }
+*:focus-visible { outline: 3px solid #4F86D6; outline-offset: 2px; border-radius: 6px; }
+
+/* responsive — class hooks match the inline-styled containers */
+.wl-burger { display: none; }
+@media (max-width: 980px) {
+  .wl-results { grid-template-columns: 1fr !important; }
+  .wl-results aside { position: static !important; }
+  .wl-form { grid-template-columns: 1fr 1fr !important; }
+  .wl-masonry { columns: 2 !important; }
+  .wl-snowbar { flex-direction: column !important; }
+  .wl-snowbar > * { width: 100% !important; }
+}
+@media (max-width: 760px) {
+  .wl-navlinks { display: none !important; }
+  .wl-burger { display: inline-block !important; }
+  .wl-grid3 { grid-template-columns: 1fr 1fr !important; }
+  .wl-foot { grid-template-columns: 1fr 1fr !important; }
+  .wl-hero h1 { font-size: 44px !important; }
+  .wl-carousel { gap: 10px !important; }
+}
+@media (max-width: 520px) {
+  .wl-grid3 { grid-template-columns: 1fr !important; }
+  .wl-form { grid-template-columns: 1fr !important; }
+  .wl-masonry { columns: 1 !important; }
+  .wl-foot { grid-template-columns: 1fr !important; }
+  .wl-hero h1 { font-size: 36px !important; }
+}

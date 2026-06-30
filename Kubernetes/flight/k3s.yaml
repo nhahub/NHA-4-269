@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flight-service
+  namespace: wijha
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flight-service
+  template:
+    metadata:
+      labels:
+        app: flight-service
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: flight-service
+              topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        role: app
+      containers:
+      - name: flight-service
+        image: amirazzamm/wijha-flight:v1.0.0
+        ports:
+        - containerPort: 8081
+        env:
+        - { name: SERVICE_NAME, value: "flight-service" }
+        - { name: PORT,         value: "8081" }
+        livenessProbe:
+          httpGet: { path: /health, port: 8081 }
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet: { path: /health, port: 8081 }
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        resources:
+          requests: { memory: "64Mi",  cpu: "50m" }
+          limits:   { memory: "128Mi", cpu: "250m" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flight-service
+  namespace: wijha
+spec:
+  type: ClusterIP
+  selector:
+    app: flight-service
+  ports:
+  - port: 8081
+    targetPort: 8081
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: flight-service
+  namespace: wijha
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: flight-service
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

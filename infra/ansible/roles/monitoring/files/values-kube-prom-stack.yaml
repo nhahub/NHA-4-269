@@ -1,0 +1,31 @@
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 30090
+  prometheusSpec:
+    nodeSelector:
+      role: monitoring
+
+alertmanager:
+  service:
+    type: NodePort
+    nodePort: 30093
+  alertmanagerSpec:
+    nodeSelector:
+      role: monitoring
+
+grafana:
+  adminPassword: "admin"
+  service:
+    type: NodePort
+    nodePort: 30030
+  nodeSelector:
+    role: monitoring
+
+prometheusOperator:
+  nodeSelector:
+    role: monitoring
+
+kube-state-metrics:
+  nodeSelector:
+    role: monitoring

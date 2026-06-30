@@ -1,0 +1,5 @@
+---
+ansible_python_interpreter: /usr/bin/python3
+k3s_version: v1.30.5+k3s1
+server_private_ip: "{{ hostvars['wijha-server'].private_ip }}"
+node_label: ""

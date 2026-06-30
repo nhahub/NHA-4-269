@@ -1,0 +1,24 @@
+- name: base setup on all nodes
+  hosts: k3s
+  roles:
+    - common
+
+- name: install k3s control plane
+  hosts: server
+  roles:
+    - k3s_server
+
+- name: join k3s agents
+  hosts: agents
+  roles:
+    - k3s_agent
+
+- name: install argoCD
+  hosts: server
+  roles:
+    - argocd
+
+- name: install monitoring stack 
+  hosts: server
+  roles:
+    - monitoring

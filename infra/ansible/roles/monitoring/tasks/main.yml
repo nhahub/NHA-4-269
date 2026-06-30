@@ -1,0 +1,29 @@
+- name: install helm
+  ansible.builtin.shell: |
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+  
+- name: add prom-community-repo + update
+  ansible.builtin.shell: |
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo update
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  changed_when: false
+
+- name: copy kube-prom-stack value
+  ansible.builtin.copy:
+    src: values-kube-prom-stack.yaml
+    dest: /tmp/values-kube-prom-stack.yaml
+
+- name: install kube-promethues-stack
+  ansible.builtin.shell: |
+   helm upgrade --install kube-prom prometheus-community/kube-prometheus-stack \
+      --namespace monitoring --create-namespace \
+      -f /tmp/values-kube-prom-stack.yaml \
+      --wait --timeout 10m
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  register: helm_out
+  changed_when: "'STATUS: deployed' in helm_out.stdout"

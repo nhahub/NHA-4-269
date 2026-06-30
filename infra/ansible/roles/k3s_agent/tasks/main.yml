@@ -1,0 +1,11 @@
+- name: install k3s agent 
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | \
+    INSTALL_K3S_VERSION={{ k3s_version }} \
+    K3S_URL={{ hostvars['wijha-server'].k3s_url }} \
+    K3S_TOKEN={{ hostvars['wijha-server'].k3s_token }} \
+    sh -s - agent \
+      --node-ip {{ private_ip }} \
+      {{ node_label }}
+  args:
+    creates: /usr/local/bin/k3s

@@ -27,4 +27,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: eyadrezk/Depi-Pr:latest
+          tags: eyadrezk/depi:latest

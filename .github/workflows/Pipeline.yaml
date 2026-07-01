@@ -1,0 +1,30 @@
+name: Pipeline
+
+description: CI/CD Pipeline to build and deploy the application on EKS cluster
+
+on:
+  push:
+    branches:
+      - Eyad
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Authenticate to docker registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: eyadrezk/Depi-Pr:latest

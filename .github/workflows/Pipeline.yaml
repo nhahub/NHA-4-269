@@ -1,7 +1,4 @@
 name: Pipeline
-
-description: CI/CD Pipeline to build and deploy the application on EKS cluster
-
 on:
   push:
     branches:
@@ -22,9 +19,51 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
 
-      - name: Build and push
+          #_______currency-service________
+      - name: Build and push currency-service image
         uses: docker/build-push-action@v7
         with:
-          context: .
+          context: ./services/currency-service
+          file: ./services/currency-service/Dockerfile
           push: true
-          tags: eyadrezk/depi:latest
+          tags: eyadrezk/currency-service:latest
+          
+         #______flight-service________
+      - name: Build and push flight-service image
+        uses: docker/build-push-action@v7
+        with:
+         context: ./services/flight-service
+         file: ./services/flight-service/Dockerfile
+         push: true
+         tags: eyadrezk/flight-service:latest 
+
+         #______gateway-service________
+      - name: Build and push gateway-service image
+        uses: docker/build-push-action@v7
+        with:
+         context: ./services/gateway-service
+         file: ./services/gateway-service/Dockerfile
+         push: true
+         tags: eyadrezk/gateway-service:latest 
+
+         #______hotel-service________
+      - name: Build and push hotel-service image
+        uses: docker/build-push-action@v7
+        with:
+         context: ./services/hotel-service
+         file: ./services/hotel-service/Dockerfile
+         push: true
+         tags: eyadrezk/hotel-service:latest 
+
+         #______weather-service________
+      - name: Build and push weather-service image
+        uses: docker/build-push-action@v7
+        with:
+         context: ./services/weather-service
+         file: ./services/weather-service/Dockerfile
+         push: true
+         tags: eyadrezk/weather-service:latest 
+
+         
+         
+         

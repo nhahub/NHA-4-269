@@ -1,0 +1,34 @@
+name: CD-pipeline
+
+on:
+  push:
+    branches:
+      - Eyad
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 K3s Cluster
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}  #host_ip
+          username: ${{ secrets.EC2_USERNAME }} #ubuntu
+          key: ${{ secrets.EC2_PRIVATE_KEY }} #private key
+          source: ./Kubernetes
+          target: /home/ubuntu/project/Kubernetes
+          script: |
+            cd /home/ubuntu/project
+
+            kubectl apply -f Kubernetes/namespace.yaml
+
+            kubectl apply -f Kubernetes/currency/k3s.yaml
+            kubectl apply -f Kubernetes/flight/k3s.yaml
+            kubectl apply -f Kubernetes/frontend/k3s.yaml
+            kubectl apply -f Kubernetes/gateway/k3s.yaml
+            kubectl apply -f Kubernetes/hotel/k3s.yaml
+            kubectl apply -f Kubernetes/weather/k3s.yaml

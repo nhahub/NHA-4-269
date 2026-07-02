@@ -74,6 +74,7 @@ jobs:
           tags: ${{ secrets.DOCKERUSERNAME }}/weather-service:latest
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:

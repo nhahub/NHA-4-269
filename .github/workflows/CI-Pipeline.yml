@@ -32,8 +32,8 @@ jobs:
       - name: Build and push frontend-service image
         uses: docker/build-push-action@v7
         with:
-          context: ./services/frontend-service
-          file: ./frontend/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile  
           push: true
           tags: ${{ secrets.DOCKERUSERNAME }}/frontend-service:latest
 

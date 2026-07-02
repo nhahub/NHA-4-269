@@ -33,7 +33,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ./frontend
-          file: ./frontend/Dockerfile  
+          file: ./frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERUSERNAME }}/frontend-service:latest
 
@@ -86,7 +86,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST_IP }} #host_ip
           username: ${{ secrets.EC2_USERNAME }} #ubuntu
-          key: ${{ secrets.EC2_PRIVATE_KEY }} #private key
+          key: ${{ secrets.SSH_PRIVATE_KEY }} #private key
           source: ./Kubernetes
           target: /home/ubuntu/project/Kubernetes
           script: |

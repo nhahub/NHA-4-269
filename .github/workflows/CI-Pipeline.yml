@@ -1,4 +1,4 @@
-name: CI-Pipeline
+name: CICD-Pipeline
 on:
   push:
     branches:
@@ -26,7 +26,7 @@ jobs:
           context: ./services/currency-service
           file: ./services/currency-service/Dockerfile
           push: true
-          tags: eyadrezk/currency-service:latest
+          tags: ${{ secrets.DOCKERUSERNAME }}/currency-service:latest
 
           #______flight-service________
       - name: Build and push flight-service image
@@ -35,7 +35,7 @@ jobs:
           context: ./services/flight-service
           file: ./services/flight-service/Dockerfile
           push: true
-          tags: eyadrezk/flight-service:latest
+          tags: ${{ secrets.DOCKERUSERNAME }}/flight-service:latest
 
           #______gateway-service________
       - name: Build and push gateway-service image
@@ -44,7 +44,7 @@ jobs:
           context: ./services/gateway-service
           file: ./services/gateway-service/Dockerfile
           push: true
-          tags: eyadrezk/gateway-service:latest
+          tags: ${{ secrets.DOCKERUSERNAME }}/gateway-service:latest
 
           #______hotel-service________
       - name: Build and push hotel-service image
@@ -53,7 +53,7 @@ jobs:
           context: ./services/hotel-service
           file: ./services/hotel-service/Dockerfile
           push: true
-          tags: eyadrezk/hotel-service:latest
+          tags: ${{ secrets.DOCKERUSERNAME }}/hotel-service:latest
 
           #______weather-service________
       - name: Build and push weather-service image
@@ -62,7 +62,7 @@ jobs:
           context: ./services/weather-service
           file: ./services/weather-service/Dockerfile
           push: true
-          tags: eyadrezk/weather-service:latest
+          tags: ${{ secrets.DOCKERUSERNAME }}/weather-service:latest
 
   deploy:
     runs-on: ubuntu-latest

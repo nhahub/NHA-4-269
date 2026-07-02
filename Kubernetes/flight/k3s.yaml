@@ -26,7 +26,8 @@ spec:
         role: app
       containers:
       - name: flight-service
-        image: amirazzamm/wijha-flight:v1.0.0
+        image: amirazzamm/flight-service:latest  #new image by github action
+        # image: amirazzamm/wijha-flight:v1.0.0
         ports:
         - containerPort: 8081
         env:

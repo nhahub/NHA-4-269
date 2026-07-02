@@ -28,6 +28,15 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERUSERNAME }}/currency-service:latest
 
+          #_____frontend-service________
+      - name: Build and push frontend-service image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./services/frontend-service
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERUSERNAME }}/frontend-service:latest
+
           #______flight-service________
       - name: Build and push flight-service image
         uses: docker/build-push-action@v7

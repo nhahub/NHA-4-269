@@ -26,7 +26,8 @@ spec:
         role: app
       containers:
       - name: gateway
-        image: amirazzamm/wijha-gateway:v1.0.0
+        image: amirazzamm/gateway-service:latest  #new image by github action
+        #image: amirazzamm/wijha-gateway:v1.0.0
         ports:
         - containerPort: 8080
         env:

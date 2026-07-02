@@ -26,7 +26,8 @@ spec:
         role: app
       containers:
       - name: currency-service
-        image: amirazzamm/wijha-currency:v1.0.0
+        image: amirazzamm/currency-service:latest  #new image by github action
+        # image: amirazzamm/wijha-currency:v1.0.0 
         ports:
         - containerPort: 8084
         env:

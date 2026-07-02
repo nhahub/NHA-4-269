@@ -26,7 +26,8 @@ spec:
         role: app
       containers:
       - name: weather-service
-        image: amirazzamm/wijha-weather:v1.0.0
+        image: amirazzamm/weather-service:latest  #new image by github action
+        #image: amirazzamm/wijha-weather:v1.0.0
         ports:
         - containerPort: 8083
         env:

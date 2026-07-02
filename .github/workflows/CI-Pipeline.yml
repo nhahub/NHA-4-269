@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - Eyad
+      - main
 
 jobs:
   build:
@@ -15,9 +16,8 @@ jobs:
       - name: Authenticate to docker registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+          username: ${{ secrets.DOCKERUSERNAME }}
+          password: ${{ secrets.DOCKERPASSWORD }}
 
           #_______currency-service________
       - name: Build and push currency-service image
@@ -27,43 +27,66 @@ jobs:
           file: ./services/currency-service/Dockerfile
           push: true
           tags: eyadrezk/currency-service:latest
-          
-         #______flight-service________
+
+          #______flight-service________
       - name: Build and push flight-service image
         uses: docker/build-push-action@v7
         with:
-         context: ./services/flight-service
-         file: ./services/flight-service/Dockerfile
-         push: true
-         tags: eyadrezk/flight-service:latest 
+          context: ./services/flight-service
+          file: ./services/flight-service/Dockerfile
+          push: true
+          tags: eyadrezk/flight-service:latest
 
-         #______gateway-service________
+          #______gateway-service________
       - name: Build and push gateway-service image
         uses: docker/build-push-action@v7
         with:
-         context: ./services/gateway-service
-         file: ./services/gateway-service/Dockerfile
-         push: true
-         tags: eyadrezk/gateway-service:latest 
+          context: ./services/gateway-service
+          file: ./services/gateway-service/Dockerfile
+          push: true
+          tags: eyadrezk/gateway-service:latest
 
-         #______hotel-service________
+          #______hotel-service________
       - name: Build and push hotel-service image
         uses: docker/build-push-action@v7
         with:
-         context: ./services/hotel-service
-         file: ./services/hotel-service/Dockerfile
-         push: true
-         tags: eyadrezk/hotel-service:latest 
+          context: ./services/hotel-service
+          file: ./services/hotel-service/Dockerfile
+          push: true
+          tags: eyadrezk/hotel-service:latest
 
-         #______weather-service________
+          #______weather-service________
       - name: Build and push weather-service image
         uses: docker/build-push-action@v7
         with:
-         context: ./services/weather-service
-         file: ./services/weather-service/Dockerfile
-         push: true
-         tags: eyadrezk/weather-service:latest 
+          context: ./services/weather-service
+          file: ./services/weather-service/Dockerfile
+          push: true
+          tags: eyadrezk/weather-service:latest
 
-         
-         
-         
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 K3s Cluster
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_IP }} #host_ip
+          username: ${{ secrets.EC2_USERNAME }} #ubuntu
+          key: ${{ secrets.EC2_PRIVATE_KEY }} #private key
+          source: ./Kubernetes
+          target: /home/ubuntu/project/Kubernetes
+          script: |
+            cd /home/ubuntu/project
+
+            kubectl apply -f Kubernetes/namespace.yaml
+
+            kubectl apply -f Kubernetes/currency/k3s.yaml
+            kubectl apply -f Kubernetes/flight/k3s.yaml
+            kubectl apply -f Kubernetes/frontend/k3s.yaml
+            kubectl apply -f Kubernetes/gateway/k3s.yaml
+            kubectl apply -f Kubernetes/hotel/k3s.yaml
+            kubectl apply -f Kubernetes/weather/k3s.yaml

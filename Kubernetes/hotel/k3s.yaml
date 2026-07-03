@@ -26,7 +26,7 @@ spec:
         role: app
       containers:
       - name: hotel-service
-        image: amirazzamm/hotel-service:latestt  #new image by github action
+        image: amirazzamm/hotel-service:latest  #new image by github action
         #image: amirazzamm/wijha-hotel:v1.0.0
         ports:
         - containerPort: 8082

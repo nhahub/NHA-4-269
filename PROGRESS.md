@@ -100,6 +100,24 @@ Replaced placeholder `myapp` garbage with real per-service manifests in `Kuberne
 
 ---
 
+## Phase 4 — IMPLEMENTED on Eyad branch (2026-07-03)
+
+Eyad wrote the CI — but **took a different path than `PHASE4-CI-GUIDE.md`**.
+
+- **`.github/workflows/CICD-Pipeline.yml`** — one workflow, 2 jobs, push on `Eyad`+`main`:
+  1. **build** — docker login + 6× build-push (`docker/build-push-action@v7`). Contexts `services/{currency,flight,gateway,hotel,weather}-service` + `./frontend`. Tags `<user>/<svc>-service:latest`.
+  2. **deploy** (`needs: build`) — `appleboy/ssh-action` SCPs `Kubernetes/` to server, runs `kubectl apply` on namespace + 6 manifests.
+- Renamed `services/gateway` → `services/gateway-service` (leftover untracked `gateway/node_modules` locally).
+- k8s manifests: images → `amirazzamm/<svc>-service:latest`; old `wijha-*:v1.0.0` commented.
+
+**DECISION (2026-07-03): ArgoCD DROPPED — appleboy push is the deploy model.** GitOps pull retired. Repo changes done: deleted `argocd/application.yaml` + `roles/argocd/`; removed `argocd` play from `playbook.yml`.
+
+**Open TODO for appleboy path:**
+- **Live cluster still runs ArgoCD** — `kubectl delete ns argocd` on server (orphaned now).
+- **`latest` tag** — `kubectl apply` of unchanged manifest won't roll pods unless `imagePullPolicy: Always` + `kubectl rollout restart`. Fix or switch to SHA tags.
+- **Secrets** `EC2_HOST_IP` + `EC2_USERNAME` not set — deploy fails without them.
+- **No `infra.yaml`** — Terraform still manual; empty `Pipeline.yaml`/`infra.yaml` stubs remain (fail every push).
+
 ## Architecture (decided)
 
 **3× EC2, single k3s cluster, GitOps via ArgoCD.**
@@ -125,8 +143,10 @@ Replaced placeholder `myapp` garbage with real per-service manifests in `Kuberne
 - [ ] **Apply ArgoCD App**: `kubectl apply -f argocd/application.yaml`; label app node `role=app`. Then Argo syncs → pods up.
 - [ ] **Alertmanager email** — Gmail SMTP via app-password as k8s Secret (NEVER in git).
 - [ ] Remove Redis from compose + gateway (decided, not executed).
-- [ ] `git rm scripts/` (old bare-metal, superseded by ansible).
-- [ ] **Nothing committed yet** — app + infra untracked. Commit only when user asks.
+- [ ] `git rm scripts/` (old bare-metal) — user chose to KEEP for now.
+- [x] **PUSHED to GitHub** (2026-06-30, commit `cec11fc`) — `nhahub/NHA-4-269`, branches `main` + `Eyad` (friend's Phase 4 branch). `.gitignore` ignores `*.tfvars` + `.claude/`.
+- [ ] **2 empty workflow stubs** (`infra.yaml`, `Pipeline.yaml`) FAIL on every push (empty = no jobs). Kept on purpose; go green/away once friend fills them.
+- [ ] **⚠️ Docs pushed with live secrets** (ArgoCD pw, AWS key id) — rotate both.
 
 ---
 

@@ -81,15 +81,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Copy manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST_IP }} #host_ip
+          username: ${{ secrets.EC2_USERNAME }} #ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }} #private key
+          source: "Kubernetes"
+          target: /home/ubuntu/project
+
       - name: Deploy to EC2 K3s Cluster
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST_IP }} #host_ip
           username: ${{ secrets.EC2_USERNAME }} #ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }} #private key
-          source: ./Kubernetes
-          target: /home/ubuntu/project/Kubernetes
           script: |
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
             cd /home/ubuntu/project
 
             kubectl apply -f Kubernetes/namespace.yaml
@@ -100,3 +108,5 @@ jobs:
             kubectl apply -f Kubernetes/gateway/k3s.yaml
             kubectl apply -f Kubernetes/hotel/k3s.yaml
             kubectl apply -f Kubernetes/weather/k3s.yaml
+
+            kubectl rollout restart deployment -n wijha

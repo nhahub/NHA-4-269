@@ -100,6 +100,26 @@ ArgoCD (in cluster): watch/pull main → sync/apply → pods
 - [x] **GitHub repo live**: `nhahub/NHA-4-269`. **Secrets set**: `DOCKERUSERNAME`, `DOCKERPASSWORD`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SSH_PRIVATE_KEY`.
 - [x] **`PHASE4-CI-GUIDE.md` written** (for friend) — full `deploy.yaml` + `infra.yaml`, marketplace-actions only (no custom shell): docker/login + docker/build-push + fjogeleit/yaml-update + stefanzweifel/git-auto-commit; dflook/terraform-{plan,apply,destroy} + aws configure-creds + shimataro/ssh-key + dawidd6/ansible-playbook. **Tag strategy = git SHA** (not vX.Y.Z). Includes Jenkins-mapping table.
 
+## Phase 4 Update — Eyad branch (2026-07-03)
+
+Eyad **implemented** Phase 4 CI on branch `Eyad` — but **diverged from `PHASE4-CI-GUIDE.md`**. State on `Eyad`:
+
+- **`.github/workflows/CICD-Pipeline.yml`** (102 lines) — single workflow, 2 jobs (`build` → `deploy`). Triggers: push on `Eyad` + `main`.
+  - **build**: `docker/login-action@v2` + 6× `docker/build-push-action@v7`. Contexts: `services/{currency,flight,gateway,hotel,weather}-service` + `./frontend`. Tags = `${DOCKERUSERNAME}/<svc>-service:latest` (e.g. `amirazzamm/currency-service:latest`, `amirazzamm/frontend-service:latest`).
+  - **deploy** (`needs: build`): `appleboy/ssh-action@v1.0.3` → SCP `./Kubernetes` to `/home/ubuntu/project/Kubernetes` on server → `kubectl apply` namespace + 6 svc manifests directly.
+- **`services/gateway` → `services/gateway-service`** (git mv). Leftover untracked `services/gateway/node_modules` remains locally — harmless, not in git.
+- **k8s manifests** — image lines swapped to `amirazzamm/<svc>-service:latest` (`#new image by github action`); old `wijha-*:v1.0.0` commented out.
+
+**DECISION (2026-07-03): ArgoCD DROPPED, appleboy push is the deploy model.** GitOps pull retired in favor of Eyad's simpler CI→SSH→kubectl apply. Repo changes done:
+- Deleted `argocd/application.yaml` + `infra/ansible/roles/argocd/`.
+- Removed `argocd` play from `playbook.yml` (plays now: common → k3s_server → k3s_agent → monitoring).
+
+**Still TODO for appleboy path (open):**
+- **Live cluster still runs ArgoCD** — run on server: `kubectl delete ns argocd` (installed earlier, now orphaned).
+- **Tag = `latest`** — `kubectl apply` of unchanged manifest won't roll pods unless `imagePullPolicy: Always` + `kubectl rollout restart`. Add rollout-restart to deploy script or switch to SHA tags, else image won't update.
+- **New secrets required**: `EC2_HOST_IP`, `EC2_USERNAME` — NOT in confirmed set. Deploy job fails until added.
+- **No `infra.yaml`** — Terraform still manual. Empty stubs `Pipeline.yaml` + `infra.yaml` still present (❌ every push).
+
 ## Not Yet Done
 
 - [ ] **Phase 4: friend writes `deploy.yaml` + `infra.yaml`** from guide. Old `Pipeline.yaml` empty — delete or ignore.
@@ -107,8 +127,9 @@ ArgoCD (in cluster): watch/pull main → sync/apply → pods
 - [ ] **⚠️ ROTATE leaked AWS key** — key `AKIAXYPDT6IG3N7AYSPZ` was shown in a screenshot (compromised). IAM → delete → new key → update both AWS secrets. Do BEFORE any infra.yaml apply.
 - [ ] **Alertmanager email** — Gmail SMTP app-password as k8s Secret (NEVER in git).
 - [ ] Remove Redis from compose + gateway (decided, not done).
-- [ ] `git rm scripts/` (old bare-metal, superseded by ansible).
-- [ ] **Nothing committed.** App + infra all untracked. User has not asked to commit — do NOT commit/push unless asked.
+- [ ] `git rm scripts/` (old bare-metal, superseded by ansible) — user chose to KEEP for now.
+- [x] **COMMITTED + PUSHED** (2026-06-30, commit `cec11fc`) to `nhahub/NHA-4-269`. Branches on remote: **`main`** + **`Eyad`** (Eyad = friend's branch for Phase 4 CI; PRs into main). `.gitignore` now also ignores `*.tfvars` + `.claude/` (both confirmed not pushed). HANDOFF/PROGRESS pushed AS-IS (user's call) → still contains ArgoCD pw + AWS key id → **rotate both**.
+- [ ] **2 empty workflow stubs FAIL on every push**: `.github/workflows/infra.yaml` + `Pipeline.yaml` are empty placeholders — GitHub auto-runs any file in workflows/, empty = ❌. User chose to KEEP them (not delete). They stay red until friend fills `infra.yaml` (from guide) + writes `deploy.yaml` (replaces dead `Pipeline.yaml`).
 - [ ] Booking flow / Login / Saved / Trips = static "coming soon" (no DB by design, out of scope).
 - [ ] Weather aside panel on SearchPage still warm cream gradient (`#FBF1DF` etc.) — sed missed; off-theme, unflagged, left as-is.
 

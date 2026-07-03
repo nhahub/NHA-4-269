@@ -26,9 +26,11 @@ spec:
         role: app
       containers:
       - name: gateway
-        image: amirazzamm/wijha-gateway:v1.0.0
+        image: amirazzamm/gateway-service:latest  #new image by github action
+        #image: amirazzamm/wijha-gateway:v1.0.0
         ports:
-        - containerPort: 8080
+        - name: http
+          containerPort: 8080
         env:
         - { name: PORT,         value: "8080" }
         - { name: FLIGHT_URL,   value: "http://flight-service:8081" }
@@ -53,14 +55,33 @@ kind: Service
 metadata:
   name: gateway
   namespace: wijha
+  labels:
+    app: gateway
 spec:
   type: NodePort
   selector:
     app: gateway
   ports:
-  - port: 8080
-    targetPort: 8080
+  - name: http
+    port: 8080
+    targetPort: http
     nodePort: 30080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gateway
+  namespace: wijha
+  labels:
+    release: kube-prom
+spec:
+  selector:
+    matchLabels:
+      app: gateway
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

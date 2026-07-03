@@ -26,9 +26,11 @@ spec:
         role: app
       containers:
       - name: hotel-service
-        image: amirazzamm/wijha-hotel:v1.0.0
+        image: amirazzamm/hotel-service:latest  #new image by github action
+        #image: amirazzamm/wijha-hotel:v1.0.0
         ports:
-        - containerPort: 8082
+        - name: http
+          containerPort: 8082
         env:
         - { name: SERVICE_NAME, value: "hotel-service" }
         - { name: PORT,         value: "8082" }
@@ -49,13 +51,32 @@ kind: Service
 metadata:
   name: hotel-service
   namespace: wijha
+  labels:
+    app: hotel-service
 spec:
   type: ClusterIP
   selector:
     app: hotel-service
   ports:
-  - port: 8082
-    targetPort: 8082
+  - name: http
+    port: 8082
+    targetPort: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hotel-service
+  namespace: wijha
+  labels:
+    release: kube-prom
+spec:
+  selector:
+    matchLabels:
+      app: hotel-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

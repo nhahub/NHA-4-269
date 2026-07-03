@@ -2,7 +2,6 @@ name: CICD-Pipeline
 on:
   push:
     branches:
-      - Eyad
       - main
 
 jobs:

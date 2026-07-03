@@ -29,7 +29,8 @@ spec:
         image: amirazzamm/flight-service:latest  #new image by github action
         # image: amirazzamm/wijha-flight:v1.0.0
         ports:
-        - containerPort: 8081
+        - name: http
+          containerPort: 8081
         env:
         - { name: SERVICE_NAME, value: "flight-service" }
         - { name: PORT,         value: "8081" }
@@ -50,13 +51,32 @@ kind: Service
 metadata:
   name: flight-service
   namespace: wijha
+  labels:
+    app: flight-service
 spec:
   type: ClusterIP
   selector:
     app: flight-service
   ports:
-  - port: 8081
-    targetPort: 8081
+  - name: http
+    port: 8081
+    targetPort: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flight-service
+  namespace: wijha
+  labels:
+    release: kube-prom
+spec:
+  selector:
+    matchLabels:
+      app: flight-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

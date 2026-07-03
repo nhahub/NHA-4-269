@@ -29,7 +29,8 @@ spec:
         image: amirazzamm/weather-service:latest  #new image by github action
         #image: amirazzamm/wijha-weather:v1.0.0
         ports:
-        - containerPort: 8083
+        - name: http
+          containerPort: 8083
         env:
         - { name: SERVICE_NAME, value: "weather-service" }
         - { name: PORT,         value: "8083" }
@@ -50,13 +51,32 @@ kind: Service
 metadata:
   name: weather-service
   namespace: wijha
+  labels:
+    app: weather-service
 spec:
   type: ClusterIP
   selector:
     app: weather-service
   ports:
-  - port: 8083
-    targetPort: 8083
+  - name: http
+    port: 8083
+    targetPort: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: weather-service
+  namespace: wijha
+  labels:
+    release: kube-prom
+spec:
+  selector:
+    matchLabels:
+      app: weather-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

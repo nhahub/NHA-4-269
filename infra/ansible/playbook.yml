@@ -13,12 +13,7 @@
   roles:
     - k3s_agent
 
-- name: install argoCD
-  hosts: server
-  roles:
-    - argocd
-
-- name: install monitoring stack 
+- name: install monitoring stack
   hosts: server
   roles:
     - monitoring

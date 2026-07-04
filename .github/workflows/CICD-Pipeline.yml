@@ -108,4 +108,6 @@ jobs:
             kubectl apply -f Kubernetes/hotel/k3s.yaml
             kubectl apply -f Kubernetes/weather/k3s.yaml
 
+            kubectl apply -f Kubernetes/ingress.yaml
+
             kubectl rollout restart deployment -n wijha

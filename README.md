@@ -27,13 +27,16 @@ email alerting.
 
 ## Live access
 
-The cluster uses NodePort services. A NodePort answers on **every** node's public
-IP, so the control-plane server IP works for everything even when other node IPs
-change on stop/start. Public IPs change when instances are restarted.
+The app is served on a clean URL via a **Traefik Ingress on port 80** with a free
+**DuckDNS** subdomain — no NodePort in the address. The other UIs still use
+NodePort. A NodePort answers on **every** node's public IP, so the control-plane
+server IP works for everything even when other node IPs change on stop/start.
+Public IPs change when instances are restarted (repoint DuckDNS after a restart).
 
 | What | URL |
 |------|-----|
-| Application (frontend) | http://3.238.250.18:30088 |
+| **Application (frontend)** | **http://wijha.duckdns.org** |
+| Application (NodePort, direct) | http://3.238.250.18:30088 |
 | Gateway health | http://3.238.250.18:30080/health |
 | Gateway API (example) | http://3.238.250.18:30080/api/search?from=CAI&to=DXB&toCity=Dubai&date=2026-07-01&checkout=2026-07-05&currency=EGP |
 | Prometheus | http://3.238.250.18:30090 |
@@ -80,7 +83,8 @@ cd services/flight-service && npm install && npm start
   state in S3 with DynamoDB locking.
 - **Ansible** (`infra/ansible/`): k3s server + agents, kube-prometheus-stack.
 - **Kubernetes** (`Kubernetes/`): per-service Deployment + Service + HPA,
-  podAntiAffinity, probes, ServiceMonitors for app metrics.
+  podAntiAffinity, probes, ServiceMonitors for app metrics; `ingress.yaml`
+  (Traefik) exposes the frontend on port 80 at the DuckDNS host.
 - **CI/CD** (`.github/workflows/CICD-Pipeline.yml`): build/push 6 images, deploy
   over SSH.
 - **Monitoring**: Prometheus scrapes `/metrics` (5 ServiceMonitors); Grafana app

@@ -49,6 +49,21 @@ resource "aws_security_group" "k3s_SG" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  # HTTP/HTTPS for Traefik ingress (nice URL, no NodePort)
+  ingress {
+    description = "HTTP ingress"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "HTTPS ingress"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   # node 2 node
   ingress {
     description = "intra-cluster"
@@ -98,5 +113,12 @@ resource "aws_instance" "k3s" {
     Name    = "${var.project}-${each.key}"
     Role    = each.value
     Project = var.project
+  }
+
+  # Canonical publishes new Ubuntu AMIs often; the "most recent" data source
+  # would otherwise force-replace all 3 running nodes (new IPs, cluster wiped)
+  # on every apply. Ignore AMI drift so existing boxes stay put.
+  lifecycle {
+    ignore_changes = [ami]
   }
 }
